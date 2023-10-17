@@ -1,0 +1,3 @@
+info,Soil_C_amb,Soil_C_elev,Soil_N_amb,Soil_N_elev,Soil_CN_amb,Soil_CN_elev,Soil_CN_RR,Soil_N_uptake_amb,Soil_N_uptake_elev,Soil_Nup_RR,MB_amb,MB_elev,MB_RR,FB_amb,FB_elev,BF_amb,BF_elev,BF_RR,fLF_amb,fLF_elev,fLF_RR,Nmin_RR
+value,2988,3004,168,164,17.78571429,18.31707317,1.0298756,8,10,1.25,55,68,1.236363636,0.13,0.1,7.692307692,10,1.3,34.85,35.1,1.007173601,0.5
+cite,Drakeetal2011,Drakeetal2011,Drakeetal2011,Drakeetal2011,Drakeetal2011,Drakeetal2011,,Drakeetal2011,Drakeetal2011,,Drakeetal2011,Drakeetal2011,,"Feng et al., 2010","Feng et al., 2010",,,,"Lichter et al., 2005","Lichter et al., 2005",,"Billings and Ziegler, 2005"

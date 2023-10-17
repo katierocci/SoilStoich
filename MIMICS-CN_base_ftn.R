@@ -19,7 +19,7 @@ source("calc_Tpars.R")
 
 
 ###########################################
-# MIMICS single point function
+# MIMICS single point function - priming and desorption experiment - Figure 4
 ###########################################
 experiment = c('Control','Priming','Priming+Acid')
 for (x in 1:3)  {   # loop over exudation experiments
@@ -141,15 +141,6 @@ Site = "Temperate deciduous forest"
 df_ss$pools<- factor(df_ss$pools, levels = pools)
 df_ss$experiment<- factor(df_ss$experiment, levels = experiment)
 
-df_ss%>%
-  filter(as.numeric(pools) <= 7) %>%
-  ggplot(aes(experiment, y, fill = pools)) +
-  geom_col() +
-  labs(y = "Total C stocks (kgC/m2)") +
-  geom_text(x=1, y=1, label=paste("CN =",round(sum(test1[[1]][1:7])/sum(test1[[1]][8:14]),1))) +
-  geom_text(x=2, y=1, label=paste("CN =",round(sum(test2[[1]][1:7])/sum(test2[[1]][8:14]),1))) +
-  geom_text(x=3, y=1, label=paste("CN =",round(sum(test3[[1]][1:7])/sum(test3[[1]][8:14]),1)))
-
 
 df_ss %>%
   filter(as.numeric(pools) <= 7) %>%
@@ -160,10 +151,12 @@ df_ss %>%
   pivot_longer(all_of(experiment), names_to = "Experiment") %>%
   mutate(Experiment = factor(Experiment, levels = experiment)) %>% # fix duplicate names
   rename(experiment = Experiment) %>%
+  filter(experiment != "Control") %>%
   ggplot(aes(x = pools, y = value, color = experiment))  +
   geom_point(size=5, alpha=0.7,position = position_jitter(width=0.1) ) +
-  labs(y = "response ratio (tx/control)",
-       title = paste("Exudation effects,",Site))
+  scale_color_manual(values = c("lightskyblue", "darkgoldenrod2")) +
+  geom_hline(yintercept = 1, color = "aquamarine4", linewidth = 2) +
+  labs(y = "response Ratio (treatment/control)")+theme_bw()
 
 
 df_ss %>%
@@ -178,14 +171,15 @@ df_ss %>%
   rename(experiment = Experiment) %>%
   ggplot(aes(x=experiment, y=CNRatio,fill=experiment,show.legend = FALSE)) +
   geom_bar(stat = "identity",show.legend = FALSE) +
-  coord_cartesian(ylim=c(6,12)) +
+  scale_fill_manual(values = c("aquamarine4","lightskyblue", "darkgoldenrod2")) +
+  coord_cartesian(ylim=c(8.5,10)) +
   labs(y = "Bulk C:N",
-       title = paste("Bulk C:N: Exudation,",Site))
+       title = paste("Bulk C:N: Exudation,",Site)) +theme_bw()
 
 
 ########################################
 ########################################
-# call time series for elevated CO2 experiment...
+# call time series for elevated CO2 experiment - Figure 6a
 # SS forward
 #######################################
 ########################################
@@ -198,7 +192,7 @@ alloc = c('10%','10%','20%','10%','20%')
 sim_year = 51 # Set number of days to sim forward
 sim_days = 365*sim_year
 exud = c(0.1,0.2)
-eCO2_NPP = 1.0
+eCO2_NPP = 1.2 #change to 1.0 to remove NPP effects
 eCO2_CHEM = 1.1
 nUPmod = 1
 
@@ -284,101 +278,7 @@ df_out$experiment<- factor(df_out$experiment, levels = experiment)
 df_out$alloc<- factor(df_out$alloc, levels = c('10%','20%'))
 
 
-
-# example pool change over simulation period
-ggplot(df_out, aes(x=year,y = bulkCN,color=tx,linetype=alloc)) +
-  geom_line()+
-  scale_linetype_manual(values = c("solid", "dotdash")) +
-  xlab("Year")+
-  labs(y = "Bulk C:N",
-       title = paste("eCO2_NPP =",eCO2_NPP,", eCO2_chem =",eCO2_CHEM))
-
-ggplot(df_out, aes(x=year,y = soilCN,color=tx,linetype=alloc)) +
-  geom_line()+
-  scale_linetype_manual(values = c("solid", "dotdash")) +
-  xlab("Year")+
-  labs(y = "Soil C:N",
-       title = paste("eCO2_NPP =",eCO2_NPP,", eCO2_chem =",eCO2_CHEM))
-
-
-ggplot(df_out, aes(x=year,y = TotalC,color=tx,linetype=alloc)) +
-  geom_line()+
-  scale_linetype_manual(values = c("solid", "dotdash")) +
-  xlab("Year") +
-  labs(y = "Total C",
-     title = paste("eCO2_NPP =",eCO2_NPP,", eCO2_chem =",eCO2_CHEM))
-
-ggplot(df_out, aes(x=year,y = MicC_O,color=tx,linetype=alloc)) +
-  geom_line()+
-  scale_linetype_manual(values = c("solid", "dotdash")) +
-  xlab("Year") +
-  labs(y = "MIC C:O",
-       title = paste("eCO2_NPP =",eCO2_NPP,", eCO2_chem =",eCO2_CHEM))
-
-df_out %>%
-  filter(year >= 1) %>%
-  ggplot(aes(x=year,y = Nmin,color=tx,linetype=alloc)) +
-  geom_line()+
-  scale_linetype_manual(values = c("solid", "dotdash")) +
-  xlab("Year")
-
-ggplot(df_out, aes(x=year,y = (SOM_1/(SOM_1+SOM_2+SOM_3)),
-                   color=experiment)) +
-  geom_line()+
-  ylab("MAOM fraction of total") +
-  xlab("Year")
-
-ggplot(df_out, aes(x=year,y = (SOM_1),
-                   color=experiment)) +
-  geom_line()+
-  ylab("MAOM") +
-  xlab("Year")
-
-ggplot(df_out, aes(x=year,y = (SOM_2/(SOM_1+SOM_2+SOM_3)),
-                   color=experiment)) +
-  geom_line()+
-  ylab("POM fraction of total") +
-  xlab("Year")
-
-
-ggplot(df_out, aes(x=year,y = (DIN),
-                   color=experiment)) +
-  geom_line()+
-  xlab("Year")
-
-ggplot(df_out, aes(x=year,y = (Cover),
-                   color=experiment)) +
-  geom_line()+
-  xlab("Year")
-
-df_out[1,]
-nsteps = dim(df_out)[1]
-df_out[nsteps,]
-
-## Quick look at response ratios:
-x <- df_out %>%
-  filter(year==sim_year) #%>%
-y <- df_out %>%
-  filter(year==df_out$year[2]) #%>%
-z = x[,1:16]/y[,1:16]
-z
-z2 = x[,22:26]/y[,22:26]
-z2
-
-
-# exudate effect kg/m2/d to g/m2/y to kg/ha
-#exef_prime = 1e3*365*(4.177809e-05 - 4.168749e-05) * 1e4 *1e-3
-#exef_acid = 1e3*365*(4.227151e-05 - 4.170081e-05)  * 1e4 *1e-3
-#exef_acid
-#exef_prime
-
-# Nmin (kg/m2/d -> mgC/cm3/d (0-30 cm) -> ug/cm3/h)
-4.167958e-05 / MICROtoECO * 1e3/24
-
-#KTs plots down here
-#Make a combined, just LQ, just NPP series of plots so we can see what is driving what?
-
-#response ratio of end of simulation to second line of year (so not 0) - need to figure out the naming convention of the rows...
+#plots of elevated CO2
 
 d = df_out$year[2]
 df_diff <- df_out %>%
@@ -395,45 +295,8 @@ df_front <- select(df_diff, experiment, tx, alloc)
 df_diff <- cbind(df_front, res) #difference between 50 and 0 years in CO2
 df_diff$tx <- factor(df_diff$tx, levels=c('baseline','prime', 'prime+acid'),
                      labels=c('Baseline', 'Priming', 'Priming+Desorption'))
-#plot of differences
-eCO2_CN <- df_diff %>%
-  mutate(Site == "Forest") %>%
-  filter(tx == "Priming") %>%
-  ggplot(aes(x = Site, y=bulkCN, shape =alloc))+ geom_point(size = 6, position = "jitter") +
-  scale_color_manual(values=c("#56B4E9","#E69F00")) +ylab("Change in bulk soil C:N after \n50 years of elevated CO2") +
-  xlab("Treatment") + theme_bw(base_size = 18)  + scale_y_continuous(limits = c(0.98, 1.00)) + theme(axis.text.x=element_blank(),
-                                                       axis.title.x=element_blank(),
-                                                       axis.title.y=element_blank(),
-                                                       legend.position="none")
-eCO2_CN
-ggsave(filename = "eCO2_CN_prim.png",
-       plot = eCO2_CN, #this is what you named your plot as
-       bg = "transparent",
-       width = 2.5, height = 2, units = "in",
-       dpi = 300)
 
-#NPP+C:N - site clay and both treatments
-level_order <- c('Bulk_CtoN', 'MicC', 'CopiotoOligo', 'SOMc','SOMp', 'N_min')
-eCO2_pools.trt <- df_diff %>%
-  mutate(fMAOM = SOM_1/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(fPOM = SOM_2/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(SOMp = SOM_1) %>%
-  mutate(SOMc = SOM_2) %>%
-  mutate(Oligotrophs = MIC_2) %>%
-  mutate(CopiotoOligo = MicC_O) %>%
-  mutate(Bulk_CtoN = bulkCN) %>%
-  mutate(N_min = Nmin) %>%
-  select(experiment, tx, alloc, Bulk_CtoN, MicC, CopiotoOligo, SOMc, SOMp, N_min) %>%
-  pivot_longer(cols= 4:9, values_to = "dif", names_to = "Pool") %>%
-  filter(tx != "Baseline") %>%
-  ggplot(aes(x = factor(Pool, level=level_order), y = dif, color = tx, group = alloc))  +
-  geom_hline(yintercept = 1, color = "black", linewidth=1) +
-  geom_point(aes(shape=alloc),size=5, alpha=0.7,position = position_jitter(width=0.25) ) +
-  scale_color_manual(values=c("#56B4E9","#E69F00")) + ylim(0.8,1.3) +
-  labs(y = "Change in pools after \n50 years of elevated CO2", x= " Pools", color='Treatment', shape="Allocation") +
-  theme_bw(base_size=16)
-eCO2_pools.trt
-#NPP+C:N - site clay and solely priming
+#Figure 6a
 level_order <- c('Bulk_CtoN', 'MicC', 'MicC_O', 'SOMc', 'N_min')
 eCO2_pools.prim <- df_diff %>%
   mutate(fMAOM = SOM_1/(SOM_1+SOM_2+SOM_3)) %>%
@@ -452,129 +315,21 @@ eCO2_pools.prim <- df_diff %>%
   labs(y = "Change in pools after \n50 years of elevated CO2", x= " Pools", shape="Allocation to \nroot exudates") +
   theme_bw(base_size=16)
 eCO2_pools.prim
-#NPP - site clay and solely priming
-level_order <- c('Bulk_CtoN', 'MicC', 'Micr_K', 'SOMc', 'N_min')
-eCO2_pools.prim2 <- df_diff %>%
-  mutate(fMAOM = SOM_1/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(fPOM = SOM_2/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(SOMp = SOM_1) %>%
-  mutate(SOMc = SOM_2) %>%
-  mutate(Oligotrophs = MIC_2) %>%
-  mutate(Micr_K = MicC_O) %>%
-  mutate(Bulk_CtoN = bulkCN) %>%
-  mutate(N_min = Nmin) %>%
-  select(experiment, tx, alloc, Bulk_CtoN, MicC, Micr_K, SOMc, N_min) %>%
-  pivot_longer(cols= 4:8, values_to = "dif", names_to = "Pool") %>%
-  filter(tx == "Priming") %>%
-  ggplot(aes(x = factor(Pool, level=level_order), y = dif, group = alloc))  +
+
+
+#observed response ratios from Duke FACE experiment - Figure 6b
+FACE_Obs <- read.csv("Drakeetal2011_DukeFACEdata.csv")
+FACE_Obs <- FACE_Obs[1, ]
+level_order <- c('Bulk_CtoN', 'MicC', 'Bac2Fun', 'fLF', 'N_min')
+eCO2_obs <- FACE_Obs %>% select('Soil_CN_RR', 'MB_RR', 'BF_RR', 'fLF_RR', 'Nmin_RR') %>%
+  mutate(Bulk_CtoN = as.numeric(Soil_CN_RR)) %>% mutate(MicC = as.numeric(MB_RR)) %>%
+  mutate(Bac2Fun = as.numeric(BF_RR)) %>% mutate(fLF = as.numeric(fLF_RR)) %>% mutate(N_min = as.numeric(Nmin_RR)) %>%
+  pivot_longer(cols = 6:10, names_to = 'Pool', values_to = 'RR') %>%
+  ggplot(aes(x = factor(Pool, level=level_order), y = RR))  +
   geom_hline(yintercept = 1, color = "black", linewidth=1) +
-  geom_point(aes(shape=alloc),size=5, alpha=0.7,position = position_jitter(width=0.25) ) + ylim(0.8,1.1) +
-  labs(y = "Change in pools after \n50 years of elevated CO2", x= " Pools", shape="Allocation to \nroot exudates") +
+  geom_point(size=5, alpha=0.7, shape = 15) + scale_y_continuous(breaks = c(0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3), limits = c(0.5, 1.3)) +
+  labs(y = "Observed response ratio \nunder elevated CO2", x= " Pools") +
   theme_bw(base_size=16)
-eCO2_pools.prim2
-#NPP+C:N - 5% clay
-level_order <- c('Bulk_CtoN', 'MicC', 'CopiotoOligo', 'SOMc','SOMp', 'N_min')
-eCO2_pools.5 <- df_diff %>%
-  mutate(fMAOM = SOM_1/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(fPOM = SOM_2/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(SOMp = SOM_1) %>%
-  mutate(SOMc = SOM_2) %>%
-  mutate(Oligotrophs = MIC_2) %>%
-  mutate(CopiotoOligo = MicC_O) %>%
-  mutate(Bulk_CtoN = bulkCN) %>%
-  mutate(N_min = Nmin) %>%
-  select(experiment, tx, alloc, Bulk_CtoN, MicC, CopiotoOligo, SOMc, SOMp, N_min) %>%
-  pivot_longer(cols= 4:9, values_to = "dif", names_to = "Pool") %>%
-  filter(tx != "Baseline") %>%
-  ggplot(aes(x = factor(Pool, level=level_order), y = dif, color = tx, group = alloc))  +
-  geom_hline(yintercept = 1, color = "black", linewidth=1) +
-  geom_point(aes(shape=alloc),size=5, alpha=0.7,position = position_jitter(width=0.25) ) +
-  scale_color_manual(values=c("#56B4E9","#E69F00")) + ylim(0.8,1.3) +
-  labs(y = "Change in pools after \n50 years of elevated CO2", x= " Pools", color='Treatment', shape="Allocation") +
-  geom_text(x=1.25, y=1.3, label="a) 5% clay", color="black", size=5) + theme_bw(base_size=16)
-eCO2_pools.5
-#NPP+C:N - 55% clay
-level_order <- c('Bulk_CtoN', 'MicC', 'CopiotoOligo', 'SOMc','SOMp', 'N_min')
-eCO2_pools.55 <- df_diff %>%
-  mutate(fMAOM = SOM_1/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(fPOM = SOM_2/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(SOMp = SOM_1) %>%
-  mutate(SOMc = SOM_2) %>%
-  mutate(Oligotrophs = MIC_2) %>%
-  mutate(CopiotoOligo = MicC_O) %>%
-  mutate(Bulk_CtoN = bulkCN) %>%
-  mutate(N_min = Nmin) %>%
-  select(experiment, tx, alloc, Bulk_CtoN, MicC, CopiotoOligo, SOMc, SOMp, N_min) %>%
-  pivot_longer(cols= 4:9, values_to = "dif", names_to = "Pool") %>%
-  filter(tx != "Baseline") %>%
-  ggplot(aes(x = factor(Pool, level=level_order), y = dif, color = tx, group = alloc))  +
-  geom_hline(yintercept = 1, color = "black", linewidth=1) +
-  geom_point(aes(shape=alloc),size=5, alpha=0.7,position = position_jitter(width=0.25) ) +
-  scale_color_manual(values=c("#56B4E9","#E69F00")) + ylim(0.8,1.3) +
-  labs(y = "Change in pools after \n50 years of elevated CO2", x= " Pools", color='Treatment', shape="Allocation") +
-  geom_text(x=1.25, y=1.3, label="b) 55% clay", color="black", size=5) + theme_bw(base_size=16)
-eCO2_pools.55
-ggsave(filename = "eCO2_prim_noNPP.png",
-       plot = eCO2_pools.prim2, #this is what you named your plot as
-       bg = "transparent",
-       width = 8.2, height = 5, units = "in",
-       dpi = 300)
-ggsave(filename = "eCO2_clay5_50_check.png",
-       plot = eCO2_pools.5, #this is what you named your plot as
-       bg = "transparent",
-       width = 8.2, height = 5, units = "in",
-       dpi = 300)
-ggsave(filename = "eCO2_clay55_50_check.png",
-       plot = eCO2_pools.55, #this is what you named your plot as
-       bg = "transparent",
-       width = 8.2, height = 5, units = "in",
-       dpi = 300)
-
-#NPP
-level_order <- c('Bulk_CtoN', 'Oligotrophs', 'CopiotoOligo', 'POM','MAOM', 'N_min')
-eCO2_pools.npp <- df_diff %>%
-  mutate(fMAOM = SOM_1/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(fPOM = SOM_2/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(MAOM = SOM_1) %>%
-  mutate(POM = SOM_2) %>%
-  mutate(Oligotrophs = MIC_2) %>%
-  mutate(CopiotoOligo = MicC_O) %>%
-  mutate(Bulk_CtoN = bulkCN) %>%
-  mutate(N_min = Nmin) %>%
-  select(experiment, tx, alloc, Bulk_CtoN, Oligotrophs, CopiotoOligo, POM, MAOM, N_min) %>%
-  pivot_longer(cols= 4:9, values_to = "dif", names_to = "Pool") %>%
-  ggplot(aes(x = factor(Pool, level=level_order), y = dif, color = tx, group = alloc))  +
-  geom_hline(yintercept = 1, color = "black", linewidth=1) +
-  geom_point(aes(shape=alloc),size=5, alpha=0.7,position = position_jitter(width=0.25) ) +
-  scale_color_manual(values=c("#009E73", "#56B4E9","#E69F00")) +
-  labs(y = "Change in pools after \n50 years of elevated CO2", x= " Pools") +
-  geom_text(x=1.2, y=0.8, label="b) +20% NPP", color="black") + theme_bw(base_size=16)
-eCO2_pools.npp
-#litter C:N
-level_order <- c('Bulk_CtoN', 'Oligotrophs', 'CopiotoOligo', 'POM', 'MAOM', 'N_min')
-eCO2_pools.CN <- df_diff %>%
-  mutate(fMAOM = SOM_1/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(fPOM = SOM_2/(SOM_1+SOM_2+SOM_3)) %>%
-  mutate(MAOM = SOM_1) %>%
-  mutate(POM = SOM_2) %>%
-  mutate(Oligotrophs = MIC_2) %>%
-  mutate(CopiotoOligo = MicC_O) %>%
-  mutate(Bulk_CtoN = bulkCN) %>%
-  mutate(N_min = Nmin) %>%
-  select(experiment, tx, alloc, Bulk_CtoN, Oligotrophs, CopiotoOligo, POM, MAOM, N_min) %>%
-  pivot_longer(cols= 4:9, values_to = "dif", names_to = "Pool") %>%
-  ggplot(aes(x = factor(Pool, level=level_order), y = dif, color = tx, group = alloc))  +
-  geom_hline(yintercept = 1, color = "black", linewidth=1) +
-  geom_point(aes(shape=alloc),size=5, alpha=0.7,position = position_jitter(width=0.25) ) +
-  scale_color_manual(values=c("#009E73", "#56B4E9","#E69F00")) +
-  labs(y = "Change in pools after \n50 years of elevated CO2", x= " Pools") +
-  geom_text(x=1.2, y=0.8, label="c) +10% Litter C:N", color="black") + theme_bw(base_size=16)
-eCO2_pools.CN
-
-ggsave(filename = "eCO2_pools.png",
-       plot = eCO2_pools, #this is what you named your plot as
-       bg = "transparent",
-       width = 8, height = 4, units = "in",
-       dpi = 300)
+eCO2_obs
 
 
