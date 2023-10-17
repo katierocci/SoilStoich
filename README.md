@@ -5,7 +5,7 @@ MIMICS-CN_base_sensitivity creates figures 3 (MIMICS sensitvity to litter qualit
 
 MIMICS-CN_base_ftn creates figures 4 (biotic case study) and 6 (elevated carbon dioxie experiment)
 
-Other files are needed to run code in above R files.
+Other files are needed to run code in above R files
 
 Contact for questions: katie.rocci@colorado.edu
 
