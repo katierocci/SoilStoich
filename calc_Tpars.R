@@ -66,6 +66,9 @@ calc_Tpars <- function(TSOI, ANPP, CLAY, CN, LIG, x, exud,nUPmod=1) {
   if (x == 3) {   #Priming + Mining10% increase on desorbtion.
     desorb = desorb * (1+exud)
   }
+  if (x==4) {
+    KO = KO/(1+exud)
+  }
 
   Inputs <- I
   # initialize pools with small values
